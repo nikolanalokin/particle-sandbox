@@ -1,0 +1,27 @@
+{
+    "name": "particle-sandbox",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "npm start -w @particle-sandbox/demo"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/nikolanalokin/particle-sandbox.git"
+    },
+    "author": "Nikolay Kuznetsov",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/nikolanalokin/particle-sandbox/issues"
+    },
+    "homepage": "https://github.com/nikolanalokin/particle-sandbox#readme",
+    "workspaces": [
+        "packages/*"
+    ],
+    "devDependencies": {
+        "@types/node": "^20.11.10",
+        "typescript": "^5.3.3",
+        "vite": "^5.0.12"
+    }
+}

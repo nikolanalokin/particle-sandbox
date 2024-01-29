@@ -1,0 +1,8 @@
+{
+    "name": "@particle-sandbox/engine",
+    "main": "./src/index.ts",
+    "type": "module",
+    "scripts": {
+        "build": "vite build"
+    }
+}

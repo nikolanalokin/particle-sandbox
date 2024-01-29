@@ -1,0 +1,10 @@
+{
+    "name": "@particle-sandbox/demo",
+    "scripts": {
+        "start": "vite",
+        "build": "vite build"
+    },
+    "dependencies": {
+        "@particle-sandbox/engine": "file:../engine"
+    }
+}
