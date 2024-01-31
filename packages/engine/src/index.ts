@@ -1,5 +1,1 @@
-
-
-export function render (el: HTMLElement) {
-    el.textContent = 'Привет!'
-}
+export { Scene } from './Scene'

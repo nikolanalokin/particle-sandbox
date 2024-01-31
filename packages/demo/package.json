@@ -5,6 +5,21 @@
         "build": "vite build"
     },
     "dependencies": {
-        "@particle-sandbox/engine": "file:../engine"
-    }
+        "@particle-sandbox/engine": "*"
+    },
+    "version": "1.0.0",
+    "main": "index.js",
+    "devDependencies": {},
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/nikolanalokin/particle-sandbox.git",
+        "directory": "packages/demo"
+    },
+    "author": "Nikolay Kuznetsov",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/nikolanalokin/particle-sandbox/issues"
+    },
+    "homepage": "https://github.com/nikolanalokin/particle-sandbox#readme",
+    "description": ""
 }

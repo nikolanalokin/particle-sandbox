@@ -1,5 +1,6 @@
-import { render } from '@particle-sandbox/engine'
+import './index.css'
+import { Scene } from '@particle-sandbox/engine'
 
-const rootEl = document.getElementById('root')
+const scene = new Scene({ rootEl: document.getElementById('root') })
 
-render(rootEl)
+scene.play()
