@@ -3,8 +3,8 @@ import { Grid } from './Grid'
 const colorCache = new Map()
 
 export class Renderer {
-    width: number = 400
-    height: number = 400
+    width: number = 200
+    height: number = 200
 
     rootEl: HTMLElement = null
     grid: Grid = null
@@ -13,8 +13,8 @@ export class Renderer {
     context: CanvasRenderingContext2D = null
     imageData = null
 
-    imageCanvas: HTMLCanvasElement = null
-    imageContext: CanvasRenderingContext2D = null
+    offscreenCanvas: HTMLCanvasElement = null
+    offscreenContext: CanvasRenderingContext2D = null
 
     constructor ({ rootEl, grid }) {
         this.rootEl = rootEl
@@ -24,19 +24,19 @@ export class Renderer {
         this.canvasEl.width = this.width
         this.canvasEl.height = this.height
 
-        this.imageCanvas = document.createElement('canvas')
-        this.imageCanvas.width = this.grid.width
-        this.imageCanvas.height = this.grid.height
+        this.offscreenCanvas = document.createElement('canvas')
+        this.offscreenCanvas.width = this.grid.width
+        this.offscreenCanvas.height = this.grid.height
 
         this.rootEl.appendChild(this.canvasEl)
 
         this.context = this.canvasEl.getContext('2d')
-        this.imageContext = this.imageCanvas.getContext('2d')
-        this.imageData = this.imageContext.createImageData(this.imageCanvas.width, this.imageCanvas.height)
+        this.offscreenContext = this.offscreenCanvas.getContext('2d')
+        this.imageData = this.offscreenContext.createImageData(this.offscreenCanvas.width, this.offscreenCanvas.height)
     }
 
     render () {
-        this.context.reset()
+        // this.context.reset()
 
         for (let i = 0, j = 0; i < this.imageData.data.length; i += 4, j++) {
             const particle = this.grid.getCellByIndex(j)
@@ -53,10 +53,10 @@ export class Renderer {
             this.imageData.data[i + 3] = 255 // A value
         }
 
-        this.imageContext.putImageData(this.imageData, 0, 0)
+        this.offscreenContext.putImageData(this.imageData, 0, 0)
 
-        this.context.scale(this.scaleX, this.scaleY)
-        this.context.drawImage(this.imageCanvas, 0, 0)
+        // this.context.scale(this.scaleX, this.scaleY)
+        this.context.drawImage(this.offscreenCanvas, 0, 0)
     }
 
     get scaleX () {

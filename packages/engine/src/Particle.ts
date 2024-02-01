@@ -8,5 +8,5 @@ export class Particle {
 
 export class EmptyParticle extends Particle {}
 export class SandParticle extends Particle {
-    color: string = '#c4af0c'
+    color: string = '#f5cf11'
 }

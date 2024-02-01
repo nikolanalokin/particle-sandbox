@@ -23,12 +23,13 @@ export class Scene {
             scaleY: this.renderer.scaleY,
         })
         this.interaction.addHandlers()
-        this.interaction.onDrag = ({ col, row }) => {
-            this.grid.set(col, row, new SandParticle())
-        }
     }
 
     update () {
+        if (this.interaction.isDown) {
+            // this.grid.set(this.interaction.mouseCol, this.interaction.mouseRow, new SandParticle())
+            this.grid.setArea(this.interaction.mouseCol, this.interaction.mouseRow, () => new SandParticle())
+        }
         this.grid.update()
         this.renderer.render()
     }

@@ -1,4 +1,4 @@
-import { EmptyParticle, Particle } from './Particle'
+import { EmptyParticle, Particle, SandParticle } from './Particle'
 
 export interface GridOptions {
     width?: number
@@ -29,27 +29,38 @@ export class Grid {
         this.cells[col][row] = particle
     }
 
+    setArea (centerCol, centerRow, setter) {
+        this.cells[centerCol][centerRow - 1] = setter()
+        this.cells[centerCol - 1][centerRow] = setter()
+        this.cells[centerCol][centerRow] = setter()
+        this.cells[centerCol + 1][centerRow] = setter()
+        this.cells[centerCol][centerRow + 1] = setter()
+    }
+
     getCellByIndex (index: number) {
         return this.cells[index % this.width][Math.floor(index / this.width)]
     }
 
     update () {
         const modified = new Set()
-        for (let col = 0; col < this.width; col++) {
-            for (let row = 0; row < this.height; row++) {
+
+        for (let row = this.height - 1; row >= 0; row--) {
+            for (let col = 0; col < this.width; col++) {
                 const particle = this.cells[col][row]
-                if (modified.has(particle)) continue
-                const below = this.cells[col]?.[row + 1]
-                const belowLeft = this.cells[col - 1]?.[row + 1]
-                const belowRight = this.cells[col + 1]?.[row + 1]
-                if (below instanceof EmptyParticle) {
-                    this.swap(col, row, col, row + 1)
-                } else if (belowLeft instanceof EmptyParticle) {
-                    this.swap(col, row, col - 1, row + 1)
-                } else if (belowRight instanceof EmptyParticle) {
-                    this.swap(col, row, col + 1, row + 1)
+                if (particle instanceof SandParticle) {
+                    if (modified.has(particle)) continue
+                    const below = this.cells[col]?.[row + 1]
+                    const belowLeft = this.cells[col - 1]?.[row + 1]
+                    const belowRight = this.cells[col + 1]?.[row + 1]
+                    if (below instanceof EmptyParticle) {
+                        this.swap(col, row, col, row + 1)
+                    } else if (belowLeft instanceof EmptyParticle) {
+                        this.swap(col, row, col - 1, row + 1)
+                    } else if (belowRight instanceof EmptyParticle) {
+                        this.swap(col, row, col + 1, row + 1)
+                    }
+                    modified.add(particle)
                 }
-                modified.add(particle)
             }
         }
     }

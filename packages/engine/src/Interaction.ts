@@ -7,6 +7,8 @@ export class Interaction {
     interactionEl: HTMLElement = null
     scaleX: number = 1
     scaleY: number = 1
+    mouseX: number = null
+    mouseY: number = null
 
     constructor ({ grid, interactionEl, scaleX = 1, scaleY = 1 }) {
         this.grid = grid
@@ -19,12 +21,14 @@ export class Interaction {
         if (!this.interactionEl) return
 
         const handleMove = (evt: MouseEvent) => {
-            if (this.isDown) {
-                this.onDrag?.({ col: Math.floor(evt.offsetX / this.scaleX), row: Math.floor(evt.offsetY / this.scaleY) })
-            }
+            this.mouseX = evt.offsetX
+            this.mouseY = evt.offsetY
         }
         const handleDown = (evt: MouseEvent) => {
             this.isDown = true
+
+            this.mouseX = evt.offsetX
+            this.mouseY = evt.offsetY
         }
         const handleUp = (evt: MouseEvent) => {
             this.isDown = false
@@ -39,9 +43,15 @@ export class Interaction {
         this.interactionEl.addEventListener('mouseup', this.handleUp)
     }
 
+    get mouseCol () {
+        return Math.floor(this.mouseX / this.scaleX)
+    }
+
+    get mouseRow () {
+        return Math.floor(this.mouseY / this.scaleY)
+    }
+
     private handleMove: (evt: MouseEvent) => void = null
     private handleDown: (evt: MouseEvent) => void = null
     private handleUp: (evt: MouseEvent) => void = null
-
-    onDrag: (params: { col: number, row: number }) => void = null
 }
