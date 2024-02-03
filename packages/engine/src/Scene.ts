@@ -1,6 +1,6 @@
 import { Grid } from './Grid'
 import { Interaction } from './Interaction'
-import { EmptyParticle, SandParticle } from './Particle'
+import { ParticleType, SandParticle } from './Particle'
 import { Renderer } from './Renderer'
 
 export class Scene {
@@ -12,7 +12,7 @@ export class Scene {
 
     constructor ({ rootEl }) {
         this.grid = new Grid()
-        this.grid.fill(new EmptyParticle())
+        this.grid.reset()
 
         this.renderer = new Renderer({ rootEl, grid: this.grid })
 
@@ -27,8 +27,7 @@ export class Scene {
 
     update () {
         if (this.interaction.isDown) {
-            // this.grid.set(this.interaction.mouseCol, this.interaction.mouseRow, new SandParticle())
-            this.grid.setArea(this.interaction.mouseCol, this.interaction.mouseRow, () => new SandParticle())
+            this.grid.paint(this.interaction.mouseX, this.interaction.mouseY, 3, ParticleType.Sand)
         }
         this.grid.update()
         this.renderer.render()
@@ -37,9 +36,12 @@ export class Scene {
     play () {
         this.timer = requestAnimationFrame(() => {
             this.update()
-
             this.play()
         })
+        // this.timer = setTimeout(() => {
+        //     this.update()
+        //     this.play()
+        // }, 200) as any
     }
 
     stop () {

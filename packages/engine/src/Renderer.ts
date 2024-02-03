@@ -43,13 +43,13 @@ export class Renderer {
             let rbgColor = colorCache.get(particle.color)
 
             if (!rbgColor) {
-                rbgColor = hexToRgb(particle.color)
+                rbgColor = hslToRgb(...particle.color)
                 colorCache.set(particle.color, rbgColor)
             }
 
-            this.imageData.data[i + 0] = rbgColor.r // R value
-            this.imageData.data[i + 1] = rbgColor.g // G value
-            this.imageData.data[i + 2] = rbgColor.b // B value
+            this.imageData.data[i + 0] = rbgColor[0] // R value
+            this.imageData.data[i + 1] = rbgColor[1] // G value
+            this.imageData.data[i + 2] = rbgColor[2] // B value
             this.imageData.data[i + 3] = 255 // A value
         }
 
@@ -70,9 +70,14 @@ export class Renderer {
 
 function hexToRgb (hex: string) {
     const bigint = parseInt(hex.slice(1), 16)
-    return {
-        r: (bigint >> 16) & 255,
-        g: (bigint >> 8) & 255,
-        b: bigint & 255,
-    }
+    return [(bigint >> 16) & 255,(bigint >> 8) & 255,bigint & 255]
+}
+
+function hslToRgb (h: number, s: number, l: number) {
+    s /= 100
+    l /= 100
+    const k = n => (n + h / 30) % 12
+    const a = s * Math.min(l, 1 - l)
+    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
+    return [255 * f(0), 255 * f(8), 255 * f(4)]
 }
