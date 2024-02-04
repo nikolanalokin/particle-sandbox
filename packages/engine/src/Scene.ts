@@ -48,4 +48,8 @@ export class Scene {
         cancelAnimationFrame(this.timer)
         this.timer = null
     }
+
+    destroy () {
+        this.stop()
+    }
 }

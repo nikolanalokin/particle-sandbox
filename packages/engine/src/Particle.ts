@@ -49,8 +49,6 @@ export class SandParticle extends Particle {
     update(cell: SandParticle, api: Api): void {
         const sideOffset = api.randomDir2()
 
-        // console.log('update');
-
         if (api.get(0, 1).type === ParticleType.Empty) {
             api.set(0, 0, new EmptyParticle())
             api.set(0, 1, this)

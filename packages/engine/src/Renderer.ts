@@ -18,17 +18,20 @@ export class Renderer {
 
     constructor ({ rootEl, grid }) {
         this.rootEl = rootEl
+
+        const rootIsCanvas = this.rootEl.tagName === 'CANVAS'
+
         this.grid = grid
 
-        this.canvasEl = document.createElement('canvas')
+        this.canvasEl = rootIsCanvas ? this.rootEl as HTMLCanvasElement : document.createElement('canvas')
         this.canvasEl.width = this.width
         this.canvasEl.height = this.height
+
+        if (!rootIsCanvas) this.rootEl.appendChild(this.canvasEl)
 
         this.offscreenCanvas = document.createElement('canvas')
         this.offscreenCanvas.width = this.grid.width
         this.offscreenCanvas.height = this.grid.height
-
-        this.rootEl.appendChild(this.canvasEl)
 
         this.context = this.canvasEl.getContext('2d')
         this.offscreenContext = this.offscreenCanvas.getContext('2d')

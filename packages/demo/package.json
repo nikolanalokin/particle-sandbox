@@ -5,11 +5,17 @@
         "build": "vite build"
     },
     "dependencies": {
-        "@particle-sandbox/engine": "*"
+        "-": "^0.0.1",
+        "@particle-sandbox/engine": "*",
+        "@types/react": "^18.2.52",
+        "@types/react-dom": "^18.2.18",
+        "@vitejs/plugin-react": "^4.2.1",
+        "normalize.css": "^8.0.1",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
     },
     "version": "1.0.0",
     "main": "index.js",
-    "devDependencies": {},
     "repository": {
         "type": "git",
         "url": "git+https://github.com/nikolanalokin/particle-sandbox.git",

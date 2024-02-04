@@ -1,0 +1,47 @@
+.header {
+    grid-area: header;
+}
+.main {
+    grid-area: main;
+
+    display: grid;
+    justify-items: center;
+
+    canvas {
+        transform-origin: center top;
+        scale: 4;
+    }
+}
+.sidebar {
+    grid-area: sidebar;
+    display: flex;
+    flex-direction: column;
+    row-gap: 12px;
+    padding-right: 24px;
+
+    button {
+        border-radius: 0;
+        border: 1px solid black;
+        padding: 12px;
+        font-size: 14px;
+        letter-spacing: .1em;
+
+        &[data-type="0"] {
+            background-color: hsl(0, 0%, 95%);
+        }
+        &[data-type="1"] {
+            background-color: hsl(0, 0%, 30%);
+            color: white;
+        }
+        &[data-type="2"] {
+            background-color: hsl(50, 90%, 50%);
+        }
+        &[data-type="3"] {
+            background-color: hsl(225, 90%, 45%);
+            color: white;
+        }
+    }
+}
+.footer {
+    grid-area: footer;
+}

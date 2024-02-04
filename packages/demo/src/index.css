@@ -1,15 +1,27 @@
+html, body {
+    font-family: 'Pixelify Sans', sans-serif;
+}
+
 body {
     margin: 0;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    display: grid;
-    align-items: center;
-    justify-items: center;
 }
 
 canvas {
     image-rendering: pixelated;
-    /* transform-origin: 0 0; */
-    scale: 4;
+    cursor: crosshair;
+}
+
+#root {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 20%;
+    grid-template-rows: 64px 1fr 52px;
+    grid-template-areas:
+        "header header"
+        "main sidebar"
+        "footer footer"
+    ;
 }
