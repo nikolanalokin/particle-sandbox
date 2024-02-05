@@ -1,18 +1,26 @@
-import { useEffect, useRef } from 'react'
-import { Scene } from '@particle-sandbox/engine'
+import { useEffect, useRef, useState } from 'react'
+import { Scene, Species, SpeciesValue } from '@particle-sandbox/engine'
 import './App.css'
 
 export const App = () => {
     const canvasRef = useRef(null)
+    const sceneRef = useRef<Scene>(null)
+
+    const [species, setSpecies] = useState<SpeciesValue>(Species.Sand)
 
     useEffect(() => {
-        const scene = new Scene({ rootEl: canvasRef.current })
-        scene.play()
+        sceneRef.current = new Scene({ rootEl: canvasRef.current })
+        sceneRef.current.play()
 
         return () => {
-            scene.destroy()
+            sceneRef.current.destroy()
         }
     }, [])
+
+    const handleSpeciesButtonClick = (species: SpeciesValue) => {
+        sceneRef.current.setBrushSpecies(species)
+        setSpecies(species)
+    }
 
     return (
         <>
@@ -21,10 +29,17 @@ export const App = () => {
                 <canvas ref={canvasRef}></canvas>
             </main>
             <aside className="sidebar">
-                <button data-type="0">Empty</button>
-                <button data-type="1">Wall</button>
-                <button data-type="2">Sand</button>
-                <button data-type="3">Water</button>
+                { Object.entries(Species).map(([name, value]) => (
+                    <button
+                        key={value}
+                        data-species-name={name}
+                        data-species-value={value}
+                        data-selected={species === value}
+                        onClick={() => handleSpeciesButtonClick(value)}
+                    >
+                        { name }
+                    </button>
+                )) }
             </aside>
             <footer className="footer"></footer>
         </>

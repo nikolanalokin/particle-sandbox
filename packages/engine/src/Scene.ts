@@ -1,12 +1,14 @@
+import { Brush } from './Brush'
 import { Grid } from './Grid'
 import { Interaction } from './Interaction'
-import { ParticleType, SandParticle } from './Particle'
+import { Species, SandParticle, SpeciesValue } from './Particle'
 import { Renderer } from './Renderer'
 
 export class Scene {
     grid: Grid = null
     renderer: Renderer = null
     interaction: Interaction = null
+    brush: Brush = null
 
     timer: number = null
 
@@ -23,11 +25,17 @@ export class Scene {
             scaleY: this.renderer.scaleY,
         })
         this.interaction.addHandlers()
+
+        this.brush = new Brush()
+    }
+
+    setBrushSpecies (species: SpeciesValue) {
+        this.brush.setSpecies(species)
     }
 
     update () {
         if (this.interaction.isDown) {
-            this.grid.paint(this.interaction.mouseX, this.interaction.mouseY, 3, ParticleType.Sand)
+            this.grid.paint(this.interaction.mouseX, this.interaction.mouseY, 3, this.brush.species)
         }
         this.grid.update()
         this.renderer.render()

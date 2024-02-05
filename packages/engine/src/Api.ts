@@ -1,5 +1,5 @@
 import { Grid } from './Grid'
-import { Particle, ParticleType, WallParticle } from './Particle'
+import { Particle, Species, WallParticle } from './Particle'
 
 interface CreateApiOptions {
     grid: Grid
@@ -24,7 +24,7 @@ export function createApi ({ grid }: CreateApiOptions) {
                 if (px < 0 || px > grid.width - 1 || py < 0 || py > grid.height - 1) {
                     return
                 }
-                if (grid.getCell(px, py).type === ParticleType.Wall) {
+                if (grid.getCell(px, py).species === Species.Wall) {
                     return
                 }
                 grid.set(px, py, cell)

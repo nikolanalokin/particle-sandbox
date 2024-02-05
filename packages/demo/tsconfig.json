@@ -2,6 +2,9 @@
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "jsx": "react-jsx",
+        "paths": {
+            "@particle-sandbox/engine": ["../engine"],
+        }
     },
     "include": [
         "src/**/*"

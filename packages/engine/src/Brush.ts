@@ -1,5 +1,7 @@
-export class Brush {
+import { SpeciesValue } from './Particle'
 
+export class Brush {
+    species: SpeciesValue = null
 
     update () {
 
@@ -7,5 +9,9 @@ export class Brush {
 
     render () {
 
+    }
+
+    setSpecies (species: SpeciesValue) {
+        this.species = species
     }
 }

@@ -1,6 +1,7 @@
 .header {
     grid-area: header;
 }
+
 .main {
     grid-area: main;
 
@@ -12,6 +13,7 @@
         scale: 4;
     }
 }
+
 .sidebar {
     grid-area: sidebar;
     display: flex;
@@ -21,27 +23,35 @@
 
     button {
         border-radius: 0;
-        border: 1px solid black;
+        border: 2px solid transparent;
         padding: 12px;
         font-size: 14px;
         letter-spacing: .1em;
 
-        &[data-type="0"] {
+        &[data-species-name="Empty"] {
             background-color: hsl(0, 0%, 95%);
         }
-        &[data-type="1"] {
+
+        &[data-species-name="Wall"] {
             background-color: hsl(0, 0%, 30%);
             color: white;
         }
-        &[data-type="2"] {
+
+        &[data-species-name="Sand"] {
             background-color: hsl(50, 90%, 50%);
         }
-        &[data-type="3"] {
+
+        &[data-species-name="Water"] {
             background-color: hsl(225, 90%, 45%);
             color: white;
         }
+
+        &[data-selected="true"] {
+            border-color: black;
+        }
     }
 }
+
 .footer {
     grid-area: footer;
 }

@@ -1,5 +1,5 @@
 import { Api, ApiCreator, createApi } from './Api'
-import { EmptyParticle, Particle, ParticleType, SandParticle, WallParticle, emptyParticle, getParticleClass } from './Particle'
+import { EmptyParticle, Particle, Species, SandParticle, WallParticle, getParticleClass, SpeciesValue } from './Particle'
 
 export interface GridOptions {
     width?: number
@@ -36,11 +36,13 @@ export class Grid {
 
     reset () {
         for (let i = 0; i < this.width * this.height; i++) {
-            if (i < this.width || i > this.width * (this.height - 1) || i % this.width === 0 || (i + 1) % this.width === 0) {
-                this.cells[i] = new WallParticle()
-            } else {
-                this.cells[i] = new EmptyParticle()
-            }
+            this.cells[i] = new EmptyParticle()
+
+            // if (i < this.width || i > this.width * (this.height - 1) || i % this.width === 0 || (i + 1) % this.width === 0) {
+            //     this.cells[i] = new WallParticle()
+            // } else {
+            //     this.cells[i] = new EmptyParticle()
+            // }
         }
     }
 
@@ -49,7 +51,7 @@ export class Grid {
         this.cells[idx] = particle
     }
 
-    paint (x: number, y: number, size: number, type: ParticleType) {
+    paint (x: number, y: number, size: number, species: SpeciesValue) {
         const radius = Math.ceil(size / 2)
 
         for (let dx = -radius; dx < radius; dx++) {
@@ -67,8 +69,8 @@ export class Grid {
 
                 const cell = this.getCell(px, py)
 
-                if (cell.type === ParticleType.Empty || type === ParticleType.Empty) {
-                    const Class = getParticleClass(type)
+                if (cell.species === Species.Empty || species === Species.Empty) {
+                    const Class = getParticleClass(species)
                     this.set(px, py, new Class({ clock: this.generation }))
                 }
             }

@@ -6,7 +6,7 @@ interface ParticleOptions {
 }
 
 export abstract class Particle {
-    type: ParticleType
+    species: SpeciesValue
     /** in HSL */
     color: [number, number, number] = [0, 0, 5]
 
@@ -20,12 +20,12 @@ export abstract class Particle {
 }
 
 export class EmptyParticle extends Particle {
-    type = ParticleType.Empty
+    species = Species.Empty
     color: [number, number, number] = [0, 0, 95]
 }
 
 export class WallParticle extends Particle {
-    type = ParticleType.Wall
+    species = Species.Wall
     color: [number, number, number] = [0, 0, 30]
 
     constructor (opts?: ParticleOptions) {
@@ -34,11 +34,11 @@ export class WallParticle extends Particle {
     }
 }
 
-export const emptyParticle = new EmptyParticle()
-export const wallParticle = new WallParticle()
+// export const emptyParticle = new EmptyParticle()
+// export const wallParticle = new WallParticle()
 
 export class SandParticle extends Particle {
-    type = ParticleType.Sand
+    species = Species.Sand
     color: [number, number, number] = [50, 90, 50]
 
     constructor (opts?: ParticleOptions) {
@@ -47,30 +47,78 @@ export class SandParticle extends Particle {
     }
 
     update(cell: SandParticle, api: Api): void {
-        const sideOffset = api.randomDir2()
+        const dx = api.randomDir2()
+        const below = api.get(0, 1)
+        const belowSide = api.get(dx, 1)
 
-        if (api.get(0, 1).type === ParticleType.Empty) {
-            api.set(0, 0, new EmptyParticle())
+        if (below.species === Species.Empty) {
+            api.set(0, 0, below)
             api.set(0, 1, this)
-        } else if (api.get(sideOffset, 1).type === ParticleType.Empty) {
-            api.set(0, 0, new EmptyParticle())
-            api.set(sideOffset, 1, this)
+        } else if (belowSide.species === Species.Empty) {
+            api.set(0, 0, belowSide)
+            api.set(dx, 1, this)
+        } else if (below.species === Species.Water) {
+            api.set(0, 0, below)
+            api.set(0, 1, this)
+        } else {
+            api.set(0, 0, this)
         }
     }
 }
 
-export enum ParticleType {
-    Empty = 0,
-    Wall = 1,
-    Sand = 2,
-    Water = 3,
+export class WaterParticle extends Particle {
+    species = Species.Water
+    color: [number, number, number] = [225, 90, 45]
+
+    constructor (opts?: ParticleOptions) {
+        super(opts)
+        this.color[2] += random(-5, 5)
+    }
+
+    update(cell: WaterParticle, api: Api): void {
+        const dx = api.randomDir2()
+        const below = api.get(0, 1)
+        const belowSide = api.get(dx, 1)
+        const belowOppositeSide = api.get(-dx, 1)
+
+        if (below.species === Species.Empty) {
+            api.set(0, 0, below)
+            api.set(0, 1, this)
+            return
+        } else if (belowSide.species === Species.Empty) {
+            api.set(0, 0, belowSide)
+            api.set(dx, 1, this)
+            return
+        } else if (belowOppositeSide.species === Species.Empty) {
+            api.set(0, 0, belowOppositeSide)
+            api.set(-dx, 1, this)
+            return
+        }
+    }
 }
 
-export function getParticleClass (type: ParticleType) {
+// export enum Species {
+//     Empty = 0,
+//     Wall = 1,
+//     Sand = 2,
+//     Water = 3,
+// }
+
+export function getParticleClass (species: SpeciesValue) {
     return {
-        [ParticleType.Empty]: EmptyParticle,
-        [ParticleType.Wall]: WallParticle,
-        [ParticleType.Sand]: SandParticle,
-        // [ParticleType.Water]: WaterParticle,
-    }[type] || EmptyParticle
+        [Species.Empty]: EmptyParticle,
+        [Species.Wall]: WallParticle,
+        [Species.Sand]: SandParticle,
+        [Species.Water]: WaterParticle,
+    }[species] || EmptyParticle
 }
+
+export const Species = {
+    Empty: 0,
+    Wall: 1,
+    Sand: 2,
+    Water: 3,
+} as const
+
+export type SpeciesName = keyof typeof Species;
+export type SpeciesValue = typeof Species[SpeciesName]
