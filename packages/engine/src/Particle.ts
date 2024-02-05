@@ -76,10 +76,10 @@ export class WaterParticle extends Particle {
     }
 
     update(cell: WaterParticle, api: Api): void {
-        const dx = api.randomDir2()
+        const dx0 = api.randomDir2()
         const below = api.get(0, 1)
-        const belowSide = api.get(dx, 1)
-        const belowOppositeSide = api.get(-dx, 1)
+        const belowSide = api.get(dx0, 1)
+        const belowOppositeSide = api.get(-dx0, 1)
 
         if (below.species === Species.Empty) {
             api.set(0, 0, below)
@@ -87,12 +87,25 @@ export class WaterParticle extends Particle {
             return
         } else if (belowSide.species === Species.Empty) {
             api.set(0, 0, belowSide)
-            api.set(dx, 1, this)
+            api.set(dx0, 1, this)
             return
         } else if (belowOppositeSide.species === Species.Empty) {
             api.set(0, 0, belowOppositeSide)
-            api.set(-dx, 1, this)
+            api.set(-dx0, 1, this)
             return
+        }
+
+        const dx1 = api.randomDir2()
+        const dx1d = dx1 * 2
+
+        if (api.get(dx1, 0).species === Species.Empty && api.get(dx1d, 0).species === Species.Empty) {
+            api.set(0, 0, api.get(dx1d, 0))
+            api.set(dx1d, 0, this)
+        } else if (api.get(dx1, 0).species === Species.Empty) {
+            api.set(0, 0, api.get(dx1, 0))
+            api.set(dx1, 0, this)
+        } else {
+            api.set(0, 0, this)
         }
     }
 }
