@@ -1,5 +1,6 @@
 import { Grid } from './Grid'
 import { Particle, Species, WallParticle } from './Particle'
+import { random } from './utils'
 
 interface CreateApiOptions {
     grid: Grid
@@ -36,9 +37,26 @@ export function createApi ({ grid }: CreateApiOptions) {
             randomDir2 () {
                 return [-1, 1].random() as -1 | 1
             },
+            randomVec () {
+                return [
+                    [-1, -1],
+                    [0, -1],
+                    [1, -1],
+                    [-1, 0],
+                    [0, 0],
+                    [1, 0],
+                    [-1, 1],
+                    [0, 1],
+                    [1, 1],
+                ][random(0, 8)] as Vector
+            }
         }
     }
 }
+
+export type Direction = -1 | 0 | 1
+export type DirectionSide = Exclude<Direction, 0>
+export type Vector = [Direction, Direction]
 
 export type ApiCreator = ReturnType<typeof createApi>
 export type Api = ReturnType<ApiCreator>
