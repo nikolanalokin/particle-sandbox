@@ -1,4 +1,5 @@
-import { Api } from './Api'
+import { Api, Vector } from './Api'
+import { GRAVITY } from './Scene'
 import { random } from './utils'
 
 interface ParticleOptions {
@@ -41,9 +42,20 @@ export class SandParticle extends Particle {
     species = Species.Sand
     color: [number, number, number] = [50, 90, 50]
 
+    velocity: Vector = [0, 1]
+
     constructor (opts?: ParticleOptions) {
         super(opts)
         this.color[2] += random(-12, 12)
+    }
+
+    // одновляем скорость
+    // определяем следующую предполагаемую ячейку
+    // строим луч до ячейки и проверяем каждый пиксель на коллизию
+    // перемещаем на место валидной ячейки
+
+    updateVelocity (acceleration: Vector) {
+        this.velocity = this.velocity.map((dv, i) => dv + acceleration[i]) as Vector
     }
 
     update(cell: SandParticle, api: Api): void {

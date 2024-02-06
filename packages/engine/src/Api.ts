@@ -48,7 +48,7 @@ export function createApi ({ grid }: CreateApiOptions) {
                     [-1, 1],
                     [0, 1],
                     [1, 1],
-                ][random(0, 8)] as Vector
+                ][random(0, 8)] as Vector<Direction>
             }
         }
     }
@@ -56,7 +56,7 @@ export function createApi ({ grid }: CreateApiOptions) {
 
 export type Direction = -1 | 0 | 1
 export type DirectionSide = Exclude<Direction, 0>
-export type Vector = [Direction, Direction]
+export type Vector<T extends number = number> = [T, T]
 
 export type ApiCreator = ReturnType<typeof createApi>
 export type Api = ReturnType<ApiCreator>

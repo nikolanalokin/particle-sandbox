@@ -4,6 +4,8 @@ import { Interaction } from './Interaction'
 import { Species, SandParticle, SpeciesValue } from './Particle'
 import { Renderer } from './Renderer'
 
+export const GRAVITY = .5
+
 export class Scene {
     grid: Grid = null
     renderer: Renderer = null
