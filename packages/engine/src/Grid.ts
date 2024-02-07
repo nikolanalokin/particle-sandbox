@@ -1,6 +1,6 @@
 import { Api, ApiCreator, createApi } from './Api'
 import { EmptyParticle, Particle, Species, SandParticle, WallParticle, getParticleClass, SpeciesValue } from './Particle'
-import { lineBetween } from './utils'
+import { lineBetween, lineBetweenOptimized } from './utils'
 
 export interface GridOptions {
     width?: number
@@ -24,6 +24,14 @@ export class Grid {
         if (opts.height) this.height = opts.height
 
         this.apiFabric = createApi({ grid: this })
+    }
+
+    get length () {
+        return this.width * this.height
+    }
+
+    getPosition (index: number) {
+        return [index % this.width, Math.floor(index / this.height)]
     }
 
     getIndex (x: number, y: number): number {
@@ -53,7 +61,7 @@ export class Grid {
     }
 
     paintLine (x: number, y: number) {
-        const cells = lineBetween(this.width / 2, this.height / 2, x, y)
+        const cells = lineBetweenOptimized(this.width / 2, this.height / 2, x, y)
         cells.forEach(([px, py]) => {
             this.set(px, py, new WallParticle({ clock: this.generation }))
         })

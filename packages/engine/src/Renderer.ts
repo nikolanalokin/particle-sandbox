@@ -1,10 +1,11 @@
 import { Grid } from './Grid'
+import { hslStringToObject, hslToRgb } from './color-utils'
 
 const colorCache = new Map()
 
 export class Renderer {
-    width: number = 200
-    height: number = 200
+    width: number = 800
+    height: number = 800
 
     rootEl: HTMLElement = null
     grid: Grid = null
@@ -34,21 +35,20 @@ export class Renderer {
         this.offscreenCanvas.height = this.grid.height
 
         this.context = this.canvasEl.getContext('2d')
+        this.context.imageSmoothingEnabled = false
         this.offscreenContext = this.offscreenCanvas.getContext('2d')
+        this.offscreenContext.imageSmoothingEnabled = false
         this.imageData = this.offscreenContext.createImageData(this.offscreenCanvas.width, this.offscreenCanvas.height)
     }
 
     render () {
-        // this.context.reset()
-
         for (let i = 0, j = 0; i < this.imageData.data.length; i += 4, j++) {
             const particle = this.grid.getCellByIndex(j)
-            let rbgColor = colorCache.get(particle.color.join(''))
+            let rbgColor = colorCache.get(particle.color)
 
             if (!rbgColor) {
-                rbgColor = hslToRgb(...particle.color)
-                colorCache.set(particle.color.join(''), rbgColor)
-                console.log(colorCache.size);
+                rbgColor = hslToRgb(...hslStringToObject(particle.color))
+                colorCache.set(particle.color, rbgColor)
             }
 
             this.imageData.data[i + 0] = rbgColor[0] // R value
@@ -58,9 +58,15 @@ export class Renderer {
         }
 
         this.offscreenContext.putImageData(this.imageData, 0, 0)
+        this.context.drawImage(this.offscreenCanvas, 0, 0, this.width, this.height)
 
-        // this.context.scale(this.scaleX, this.scaleY)
-        this.context.drawImage(this.offscreenCanvas, 0, 0)
+        // this.context.lineWidth = .5
+        // this.context.strokeStyle = 'green'
+
+        // for (let i = 0; i < this.grid.length; i++) {
+        //     const pos = this.grid.getPosition(i)
+        //     this.context.strokeRect(this.scaleX * pos[0], this.scaleY * pos[1], this.scaleX, this.scaleY)
+        // }
     }
 
     get scaleX () {
@@ -70,18 +76,4 @@ export class Renderer {
     get scaleY () {
         return this.height / this.grid.height
     }
-}
-
-function hexToRgb (hex: string) {
-    const bigint = parseInt(hex.slice(1), 16)
-    return [(bigint >> 16) & 255,(bigint >> 8) & 255,bigint & 255]
-}
-
-function hslToRgb (h: number, s: number, l: number) {
-    s /= 100
-    l /= 100
-    const k = n => (n + h / 30) % 12
-    const a = s * Math.min(l, 1 - l)
-    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
-    return [255 * f(0), 255 * f(8), 255 * f(4)]
 }

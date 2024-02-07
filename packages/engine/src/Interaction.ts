@@ -43,11 +43,11 @@ export class Interaction {
         this.interactionEl.addEventListener('mouseup', this.handleUp)
     }
 
-    get mouseCol () {
+    get x () {
         return Math.floor(this.mouseX / this.scaleX)
     }
 
-    get mouseRow () {
+    get y () {
         return Math.floor(this.mouseY / this.scaleY)
     }
 

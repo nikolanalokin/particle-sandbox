@@ -7,11 +7,6 @@
 
     display: grid;
     justify-items: center;
-
-    canvas {
-        transform-origin: center top;
-        scale: 4;
-    }
 }
 
 .sidebar {

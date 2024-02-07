@@ -1,6 +1,7 @@
 import { Api, Vector } from './Api'
 import { GRAVITY } from './Scene'
-import { random } from './utils'
+import { hslSetLum } from './color-utils'
+import { lineBetweenCallback, random } from './utils'
 
 interface ParticleOptions {
     clock?: number
@@ -9,7 +10,7 @@ interface ParticleOptions {
 export abstract class Particle {
     species: SpeciesValue
     /** in HSL */
-    color: [number, number, number] = [0, 0, 5]
+    color: string = '0 0 5'
 
     clock: number = 0
 
@@ -22,16 +23,16 @@ export abstract class Particle {
 
 export class EmptyParticle extends Particle {
     species = Species.Empty
-    color: [number, number, number] = [0, 0, 95]
+    color: string = '0 0 95'
 }
 
 export class WallParticle extends Particle {
     species = Species.Wall
-    color: [number, number, number] = [0, 0, 30]
+    color: string = '0 0 30'
 
     constructor (opts?: ParticleOptions) {
         super(opts)
-        this.color[2] += random(-5, 5)
+        this.color = hslSetLum(this.color, value => value + random(-5, 5))
     }
 }
 
@@ -40,13 +41,14 @@ export class WallParticle extends Particle {
 
 export class SandParticle extends Particle {
     species = Species.Sand
-    color: [number, number, number] = [50, 90, 50]
+    color: string = '50 90 50'
 
-    velocity: Vector = [0, 1]
+    vy: number = 1
+    max_vy: number = 4
 
     constructor (opts?: ParticleOptions) {
         super(opts)
-        this.color[2] += random(-12, 12)
+        this.color = hslSetLum(this.color, value => value + random(-12, 12))
     }
 
     // одновляем скорость
@@ -54,37 +56,92 @@ export class SandParticle extends Particle {
     // строим луч до ячейки и проверяем каждый пиксель на коллизию
     // перемещаем на место валидной ячейки
 
-    updateVelocity (acceleration: Vector) {
-        this.velocity = this.velocity.map((dv, i) => dv + acceleration[i]) as Vector
+    updateVelocity () {
+        this.vy = Math.max(Math.round(this.vy + GRAVITY), this.max_vy)
     }
 
     update(cell: SandParticle, api: Api): void {
-        const dx = api.randomDir2()
-        const below = api.get(0, 1)
-        const belowSide = api.get(dx, 1)
+        this.updateVelocity()
+
+        const dir = api.randomDir2()
+
+        const dy = this.vy
+        const dx = Math.round(dir * this.vy)
+
+        const below = api.get(0, dy)
+        const belowSide = api.get(dx, dy)
 
         if (below.species === Species.Empty) {
             api.set(0, 0, below)
-            api.set(0, 1, this)
+            api.set(0, dy, this)
         } else if (belowSide.species === Species.Empty) {
             api.set(0, 0, belowSide)
-            api.set(dx, 1, this)
+            api.set(dx, dy, this)
         } else if (below.species === Species.Water) {
             api.set(0, 0, below)
-            api.set(0, 1, this)
+            api.set(0, dy, this)
         } else {
-            api.set(0, 0, this)
+            let last = {
+                cell: null,
+                y: 0,
+            }
+            lineBetweenCallback(0, 1, 0, dy, (x, y) => {
+                const next = api.get(x, y)
+                if (next.species !== Species.Empty) return true
+                last.cell = next
+                last.y = y
+            })
+            if (last.cell) {
+                api.set(0, 0, last.cell)
+                api.set(0, last.y, this)
+            } else {
+                api.set(0, 0, this)
+            }
+            this.vy = 0
         }
     }
 }
+// export class SandParticle extends Particle {
+//     species = Species.Sand
+//     color: string = '50 90 50'
+
+//     constructor (opts?: ParticleOptions) {
+//         super(opts)
+//         this.color = hslSetLum(this.color, value => value + random(-12, 12))
+//     }
+
+//     // одновляем скорость
+//     // определяем следующую предполагаемую ячейку
+//     // строим луч до ячейки и проверяем каждый пиксель на коллизию
+//     // перемещаем на место валидной ячейки
+
+//     update(cell: SandParticle, api: Api): void {
+//         const dx = api.randomDir2()
+//         const below = api.get(0, 1)
+//         const belowSide = api.get(dx, 1)
+
+//         if (below.species === Species.Empty) {
+//             api.set(0, 0, below)
+//             api.set(0, 1, this)
+//         } else if (belowSide.species === Species.Empty) {
+//             api.set(0, 0, belowSide)
+//             api.set(dx, 1, this)
+//         } else if (below.species === Species.Water) {
+//             api.set(0, 0, below)
+//             api.set(0, 1, this)
+//         } else {
+//             api.set(0, 0, this)
+//         }
+//     }
+// }
 
 export class WaterParticle extends Particle {
     species = Species.Water
-    color: [number, number, number] = [225, 90, 45]
+    color: string = '225 90 45'
 
     constructor (opts?: ParticleOptions) {
         super(opts)
-        this.color[2] += random(-5, 5)
+        this.color = hslSetLum(this.color, value => value + random(-5, 5))
     }
 
     update(cell: WaterParticle, api: Api): void {
