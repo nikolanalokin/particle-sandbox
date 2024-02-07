@@ -36,10 +36,14 @@ export class Scene {
     }
 
     update () {
-        if (this.interaction.isDown) {
-            this.grid.paint(this.interaction.mouseX, this.interaction.mouseY, 3, this.brush.species)
+        if (this.interaction.mouseX && this.interaction.mouseY) {
+            this.grid.reset()
+            this.grid.paintLine(this.interaction.mouseX, this.interaction.mouseY)
         }
-        this.grid.update()
+        // if (this.interaction.isDown) {
+        //     this.grid.paint(this.interaction.mouseX, this.interaction.mouseY, 3, this.brush.species)
+        // }
+        // this.grid.update()
         this.renderer.render()
     }
 

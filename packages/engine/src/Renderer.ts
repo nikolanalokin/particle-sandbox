@@ -43,11 +43,12 @@ export class Renderer {
 
         for (let i = 0, j = 0; i < this.imageData.data.length; i += 4, j++) {
             const particle = this.grid.getCellByIndex(j)
-            let rbgColor = colorCache.get(particle.color)
+            let rbgColor = colorCache.get(particle.color.join(''))
 
             if (!rbgColor) {
                 rbgColor = hslToRgb(...particle.color)
-                colorCache.set(particle.color, rbgColor)
+                colorCache.set(particle.color.join(''), rbgColor)
+                console.log(colorCache.size);
             }
 
             this.imageData.data[i + 0] = rbgColor[0] // R value
