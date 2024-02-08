@@ -3,6 +3,8 @@ import { GRAVITY } from './Scene'
 import { hslSetLum } from './color-utils'
 import { lineBetweenCallback, random } from './utils'
 
+const sqrtOfTwo = Math.sqrt(2)
+
 interface ParticleOptions {
     clock?: number
 }
@@ -60,47 +62,97 @@ export class SandParticle extends Particle {
     // перемещаем на место валидной ячейки
 
     updateVelocity () {
-        this.vy = Math.max(this.vy + GRAVITY, this.max_vy)
+        this.vx = Math.abs(this.vx) <= .1 ? 0 : this.vx * .8
+        this.vy = Math.abs(this.vy + GRAVITY) > this.max_vy ? this.max_vy : this.vy + GRAVITY
     }
 
     update(cell: SandParticle, api: Api): void {
         this.updateVelocity()
 
-        const dir = api.randomDir2()
+        const dx = Math.round(this.vx)
+        const dy = Math.round(this.vy)
 
-        const dy = this.vy
-        const dx = Math.round(dir * this.vy)
+        let last = {
+            cell: null,
+            x: 0,
+            y: 0,
+        }
 
-        const below = api.get(0, dy)
-        const belowSide = api.get(dx, dy)
+        let next = {
+            cell: null,
+            x: 0,
+            y: 0,
+        }
 
-        if (below.species === Species.Empty) {
-            api.set(0, 0, below)
-            api.set(0, dy, this)
-        } else if (belowSide.species === Species.Empty) {
-            api.set(0, 0, belowSide)
-            api.set(dx, dy, this)
-        } else if (below.species === Species.Water) {
-            api.set(0, 0, below)
-            api.set(0, dy, this)
-        } else {
-            let last = {
-                cell: null,
-                y: 0,
+        lineBetweenCallback(0, 0, dx, dy, (x, y) => {
+            next.cell = api.get(x, y)
+            next.x = x
+            next.y = y
+
+            if ((x !== 0 || y !== 0) && next.cell.species !== Species.Empty) {
+                return true
             }
-            lineBetweenCallback(0, 1, 0, dy, (x, y) => {
-                const next = api.get(x, y)
-                if (next.species !== Species.Empty) return true
-                last.cell = next
-                last.y = y
-            })
-            if (last.cell) {
-                api.set(0, 0, last.cell)
-                api.set(0, last.y, this)
+
+            last.cell = next.cell
+            last.x = next.x
+            last.y = next.y
+        })
+
+        // не двигалась
+        if (last.cell === this) {
+            // console.log(1)
+            api.set(0, 0, this)
+            return
+        }
+
+        const rand_dir = api.randomDir2()
+
+        // встретила препятствие
+        if (last.cell !== next.cell) {
+            if (api.get(next.x + rand_dir, next.y).species === Species.Empty) {
+                // console.log(2)
+                api.set(0, 0, new EmptyParticle())
+                api.set(next.x + rand_dir, next.y, this)
+
+                this.vx = rand_dir * this.vy / 2
+                this.vy = 1
+            } else if (api.get(next.x - rand_dir, next.y).species === Species.Empty) {
+                // console.log(3)
+                api.set(0, 0, new EmptyParticle())
+                api.set(next.x - rand_dir, next.y, this)
+
+                this.vx = -rand_dir * this.vy / 2
+                this.vy = 1
             } else {
-                api.set(0, 0, this)
+                // console.log(4)
+                api.set(0, 0, new EmptyParticle())
+                api.set(last.x, last.y, this)
+
+                this.vx = 0
+                this.vy = 0
             }
-            this.vy = 0
+
+            return
+        }
+
+        if (api.get(last.x, last.y).species === Species.Empty) {
+            // console.log(5)
+            api.set(0, 0, new EmptyParticle())
+            api.set(last.x, last.y, this)
+        } else if (api.get(last.x + rand_dir, last.y).species === Species.Empty) {
+            api.set(0, 0, new EmptyParticle())
+            api.set(last.x + rand_dir, last.y, this)
+
+            this.vx = rand_dir * this.vy / 2
+            this.vy = 1
+        } else if (api.get(last.x - rand_dir, last.y).species === Species.Empty) {
+            api.set(0, 0, new EmptyParticle())
+            api.set(last.x - rand_dir, last.y, this)
+
+            this.vx = -rand_dir * this.vy / 2
+            this.vy = 1
+        } else {
+            api.set(0, 0, this)
         }
     }
 }
@@ -112,11 +164,6 @@ export class SandParticle extends Particle {
 //         super(opts)
 //         this.color = hslSetLum(this.color, value => value + random(-12, 12))
 //     }
-
-//     // одновляем скорость
-//     // определяем следующую предполагаемую ячейку
-//     // строим луч до ячейки и проверяем каждый пиксель на коллизию
-//     // перемещаем на место валидной ячейки
 
 //     update(cell: SandParticle, api: Api): void {
 //         const dx = api.randomDir2()

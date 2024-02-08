@@ -60,6 +60,11 @@ export class Grid {
         this.cells[idx] = particle
     }
 
+    paintPoint (x: number, y: number, species: SpeciesValue) {
+        const Class = getParticleClass(species)
+        this.set(x, y, new Class({ clock: this.generation }))
+    }
+
     paintLine (x: number, y: number) {
         const cells = lineBetweenOptimized(this.width / 2, this.height / 2, x, y)
         cells.forEach(([px, py]) => {

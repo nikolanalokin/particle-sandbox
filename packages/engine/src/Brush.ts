@@ -1,7 +1,7 @@
-import { SpeciesValue } from './Particle'
+import { Species, SpeciesValue } from './Particle'
 
 export class Brush {
-    species: SpeciesValue = null
+    species: SpeciesValue = Species.Sand
 
     update () {
 

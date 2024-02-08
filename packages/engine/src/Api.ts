@@ -15,6 +15,14 @@ interface CreateApiOptions {
 export function createApi ({ grid }: CreateApiOptions) {
     return (x: number, y: number) => {
         return {
+            check (dx: number, dy: number): boolean {
+                const nx = x + dx
+                const ny = y + dy
+                if (nx < 0 || nx > grid.width - 1 || ny < 0 || ny > grid.height - 1) {
+                    return false
+                }
+                return true
+            },
             get (dx: number, dy: number): Particle {
                 const nx = x + dx
                 const ny = y + dy

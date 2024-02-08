@@ -4,7 +4,7 @@ import { Interaction } from './Interaction'
 import { Species, SandParticle, SpeciesValue } from './Particle'
 import { Renderer } from './Renderer'
 
-export const GRAVITY = .1
+export const GRAVITY = .2
 
 export class Scene {
     grid: Grid = null
@@ -42,6 +42,7 @@ export class Scene {
         // }
         if (this.interaction.isDown) {
             this.grid.paint(this.interaction.x, this.interaction.y, 3, this.brush.species)
+            // this.grid.paintPoint(this.interaction.x, this.interaction.y, this.brush.species)
         }
         this.grid.update()
         this.renderer.render()
