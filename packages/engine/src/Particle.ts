@@ -43,7 +43,10 @@ export class SandParticle extends Particle {
     species = Species.Sand
     color: string = '50 90 50'
 
-    vy: number = 1
+    vx: number = 0
+    vy: number = 0
+
+    max_vx: number = 4
     max_vy: number = 4
 
     constructor (opts?: ParticleOptions) {
@@ -57,7 +60,7 @@ export class SandParticle extends Particle {
     // перемещаем на место валидной ячейки
 
     updateVelocity () {
-        this.vy = Math.max(Math.round(this.vy + GRAVITY), this.max_vy)
+        this.vy = Math.max(this.vy + GRAVITY, this.max_vy)
     }
 
     update(cell: SandParticle, api: Api): void {
