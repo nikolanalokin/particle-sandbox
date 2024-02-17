@@ -7,7 +7,7 @@ export function hslStringToObject (color: string): [number, number, number] {
 }
 /**
  *
- * @param color 'h s l'
+ * @param color [h, s, l]
  */
 export function hslObjectToString (color: number[]): string {
     return color.join(' ')
