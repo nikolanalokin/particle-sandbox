@@ -1,5 +1,6 @@
 import { Grid } from './Grid'
-import { Particle, Species, WallParticle } from './Particle'
+import { Particle } from './particles/Particle'
+import { createWall } from './particles/createParticle'
 import { random } from './utils'
 
 /**
@@ -27,7 +28,10 @@ export function createApi ({ grid }: CreateApiOptions) {
                 const nx = x + dx
                 const ny = y + dy
                 if (nx < 0 || nx > grid.width - 1 || ny < 0 || ny > grid.height - 1) {
-                    return new WallParticle({
+                    // return new WallParticle({
+                    //     clock: grid.generation
+                    // })
+                    return createWall({
                         clock: grid.generation
                     })
                 }
@@ -39,9 +43,9 @@ export function createApi ({ grid }: CreateApiOptions) {
                 if (nx < 0 || nx > grid.width - 1 || ny < 0 || ny > grid.height - 1) {
                     return
                 }
-                if (grid.getCell(nx, ny).species === Species.Wall) {
-                    return
-                }
+                // if (grid.getCell(nx, ny).species === Species.Wall) {
+                //     return
+                // }
                 grid.set(nx, ny, cell)
                 if (!skip) cell.clock = grid.generation
             },

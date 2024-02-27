@@ -1,4 +1,4 @@
-import { Species, SpeciesValue } from './Particle'
+import { Species, SpeciesValue } from './core'
 
 export class Brush {
     species: SpeciesValue = Species.Sand

@@ -1,7 +1,7 @@
+import { SpeciesValue } from './core'
 import { Brush } from './Brush'
 import { Grid } from './Grid'
 import { Interaction } from './Interaction'
-import { Species, SandParticle, SpeciesValue } from './Particle'
 import { Renderer } from './Renderer'
 
 export const GRAVITY = .2

@@ -1,6 +1,8 @@
 import { Api, ApiCreator, createApi } from './Api'
-import { EmptyParticle, Particle, Species, SandParticle, WallParticle, getParticleClass, SpeciesValue } from './Particle'
-import { lineBetween, lineBetweenOptimized } from './utils'
+import { Particle, updateParticle } from './particles/Particle'
+import { Species, SpeciesValue } from './core'
+import { lineBetweenOptimized } from './utils'
+import { createEmpty, createWall, getCreateFunc } from './particles/createParticle'
 
 export interface GridOptions {
     width?: number
@@ -45,7 +47,8 @@ export class Grid {
 
     reset () {
         for (let i = 0; i < this.width * this.height; i++) {
-            this.cells[i] = new EmptyParticle()
+            // this.cells[i] = new EmptyParticle()
+            this.cells[i] = createEmpty()
 
             // if (i < this.width || i > this.width * (this.height - 1) || i % this.width === 0 || (i + 1) % this.width === 0) {
             //     this.cells[i] = new WallParticle()
@@ -61,14 +64,17 @@ export class Grid {
     }
 
     paintPoint (x: number, y: number, species: SpeciesValue) {
-        const Class = getParticleClass(species)
-        this.set(x, y, new Class({ clock: this.generation }))
+        // const Class = getParticleClass(species)
+        // this.set(x, y, new Class({ clock: this.generation }))
+        const createFn = getCreateFunc(species)
+        this.set(x, y, createFn({ clock: this.generation }))
     }
 
     paintLine (x: number, y: number) {
         const cells = lineBetweenOptimized(this.width / 2, this.height / 2, x, y)
         cells.forEach(([px, py]) => {
-            this.set(px, py, new WallParticle({ clock: this.generation }))
+            // this.set(px, py, new WallParticle({ clock: this.generation }))
+            this.set(px, py, createWall({ clock: this.generation }))
         })
     }
 
@@ -88,11 +94,13 @@ export class Grid {
                     continue
                 }
 
-                const cell = this.getCell(px, py)
+                const cell = this.getCell(px, py) as any
 
-                if (cell.species === Species.Empty || species === Species.Empty) {
-                    const Class = getParticleClass(species)
-                    this.set(px, py, new Class({ clock: this.generation }))
+                if (cell.state === null || species === Species.Empty) {
+                    // const Class = getParticleClass(species)
+                    // this.set(px, py, new Class({ clock: this.generation }))
+                    const createFn = getCreateFunc(species)
+                    this.set(px, py, createFn({ clock: this.generation }))
                 }
             }
         }
@@ -119,6 +127,7 @@ export class Grid {
     updateCell (cell: Particle, api: Api) {
         if (cell.clock === this.generation) return
 
-        cell.update(cell, api)
+        // cell.update(cell, api)
+        updateParticle(cell, api)
     }
 }
