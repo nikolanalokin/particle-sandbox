@@ -1,4 +1,5 @@
-import { Api } from '../Api'
+import { Api, Direction, Vector } from '../Api'
+import { hslSetLum } from '../color-utils'
 import { random } from '../utils'
 
 export type Particle = {
@@ -6,6 +7,7 @@ export type Particle = {
     color: string
     clock: number
     state: 'solid' | 'liquid' | 'gas' | 'plasma'
+    velocity: Vector<Direction>
     density: number
     temperature: number
 }
@@ -117,37 +119,37 @@ function updateState (cell: any) {
 
     // upgrade
 
-    if (cell.state === 'solid' && cell.temperature >= cell.solidLiquidTransitionTemperature) {
+    if (isSolid(cell) && cell.temperature >= cell.solidLiquidTransitionTemperature) {
         cell.state = 'liquid'
     }
 
-    if (cell.state === 'solid' && cell.temperature >= cell.solidGasTransitionTemperature) {
+    if (isSolid(cell) && cell.temperature >= cell.solidGasTransitionTemperature) {
         cell.state = 'gas'
     }
 
-    if (cell.state === 'liquid' && cell.temperature >= cell.liquidGasTransitionTemperature) {
+    if (isLiquid(cell) && cell.temperature >= cell.liquidGasTransitionTemperature) {
         cell.state = 'gas'
     }
 
-    if (cell.state === 'gas' && cell.temperature >= cell.gasPlasmaTransitionTemperature) {
+    if (isGas(cell) && cell.temperature >= cell.gasPlasmaTransitionTemperature) {
         cell.state = 'plasma'
     }
 
     // downgrade
 
-    if (cell.state === 'plasma' && cell.temperature < cell.gasPlasmaTransitionTemperature) {
+    if (isPlasma(cell) && cell.temperature < cell.gasPlasmaTransitionTemperature) {
         cell.state = 'gas'
     }
 
-    if (cell.state === 'gas' && cell.temperature < cell.liquidGasTransitionTemperature) {
+    if (isGas(cell) && cell.temperature < cell.liquidGasTransitionTemperature) {
         cell.state = 'liquid'
     }
 
-    if (cell.state === 'gas' && cell.temperature < cell.solidGasTransitionTemperature) {
+    if (isGas(cell) && cell.temperature < cell.solidGasTransitionTemperature) {
         cell.state = 'solid'
     }
 
-    if (cell.state === 'liquid' && cell.temperature < cell.solidLiquidTransitionTemperature) {
+    if (isLiquid(cell) && cell.temperature < cell.solidLiquidTransitionTemperature) {
         cell.state = 'solid'
     }
 }
@@ -170,26 +172,26 @@ function moveSolid (cell: any, api: Api) {
         return
     }
 
-    const below = api.get(0, 1) as any
+    const below = api.get(0, 1)
 
-    if (below.state === null || below.state === 'gas') {
+    if (isEmpty(below) || isGas(below)) {
         api.set(0, 0, below)
         api.set(0, 1, cell)
         return
     }
 
-    if (below.state === 'solid') {
+    if (isSolid(below)) {
         const isSliding = cell.density - DENSITIES.solid[0] < 1000 && random(0, 1000) > cell.density - DENSITIES.solid[0]
 
         if (isSliding) {
             const dx = api.randomDir2()
-            const belowSide1 = api.get(dx, 1) as any
-            const belowSide2 = api.get(-dx, 1) as any
+            const belowSide1 = api.get(dx, 1)
+            const belowSide2 = api.get(-dx, 1)
 
-            if (belowSide1.state === null || belowSide1.state === 'gas') {
+            if (isEmpty(belowSide1) || isGas(belowSide1) /* || isLiquid(belowSide1) */ ) {
                 api.set(0, 0, belowSide1)
                 api.set(dx, 1, cell)
-            } else if (belowSide2.state === null || belowSide2.state === 'gas') {
+            } else if (isEmpty(belowSide2) || isGas(belowSide2) /* || isLiquid(belowSide2) */ ) {
                 api.set(0, 0, belowSide2)
                 api.set(-dx, 1, cell)
             }
@@ -200,7 +202,7 @@ function moveSolid (cell: any, api: Api) {
         return
     }
 
-    if (below.state === 'liquid') {
+    if (isLiquid(below)) {
         if (cell.density - below.density > random(0, 1000)) {
             api.set(0, 0, below)
             api.set(0, 1, cell)
@@ -211,7 +213,7 @@ function moveSolid (cell: any, api: Api) {
         return
     }
 
-    if (below.state === 'plasma') {
+    if (isPlasma(below)) {
         api.set(0, 0, cell)
 
         return
@@ -225,6 +227,72 @@ function moveLiquid (cell: any, api: Api) {
     // нет отскоков
     // возможно смещение по горизонтали
 
+    const below = api.get(0, 1)
+
+    if (isEmpty(below) || isGas(below) || (isLiquid(below) && below.density < cell.density)) {
+        api.set(0, 0, below)
+        api.set(0, 1, cell)
+        return
+    }
+
+    if (isPlasma(below)) {
+        api.set(0, 0, cell)
+        return
+    }
+
+    const dx = api.randomDir2()
+    const belowSide1 = api.get(dx, 1)
+    const belowSide2 = api.get(-dx, 1)
+
+    if (isEmpty(belowSide1) || isGas(belowSide1) || (isLiquid(belowSide1) && belowSide1.density < cell.density)) {
+        cell.velocity[0] = dx
+        api.set(0, 0, belowSide1)
+        api.set(dx, 1, cell)
+        return
+    } else if (isEmpty(belowSide2) || isGas(belowSide2) || (isLiquid(belowSide2) && belowSide2.density < cell.density)) {
+        cell.velocity[0] = -dx
+        api.set(0, 0, belowSide2)
+        api.set(-dx, 1, cell)
+        return
+    }
+
+    const dir = cell.velocity[0] || api.randomDir2()
+    const side = api.get(dir, 0)
+    const doubleSide = api.get(dir * 2, 0)
+    const oppSide = api.get(-dir, 0)
+
+    if ((isEmpty(side) || isGas(side)) && (isEmpty(doubleSide) || isGas(doubleSide))) {
+        cell.velocity[0] = dir
+        api.set(0, 0, doubleSide)
+        api.set(dir * 2, 0, cell)
+
+        // const [dx, dy] = api.randomVec()
+        // const nrb = api.get(dx, dy)
+        // if (isLiquid(nrb) && nrb.density === cell.density) {
+        //     api.set(dx, dy, { ...nrb, velocity: [cell.velocity[0], nrb.velocity[1]] })
+        // }
+
+        return
+    } else if (isEmpty(side) || isGas(side)) {
+        cell.velocity[0] = -dir
+        api.set(0, 0, side)
+        api.set(dir, 0, cell)
+
+        // const [dx, dy] = api.randomVec()
+        // const nrb = api.get(dx, dy)
+        // if (isLiquid(nrb) && nrb.density === cell.density) {
+        //     api.set(dx, dy, { ...nrb, velocity: [cell.velocity[0], nrb.velocity[1]] })
+        // }
+
+        return
+    } else if (isEmpty(oppSide) || isGas(oppSide)) {
+        cell.velocity[0] = -dir
+        api.set(0, 0, cell)
+        return
+    }
+
+    cell.velocity[0] = 0
+    api.set(0, 0, cell)
 }
 
 function moveGas (cell: any, api: Api) {
@@ -246,4 +314,24 @@ const DENSITIES = {
     gas: [1001, 2000],
     liquid: [2001, 3000],
     solid: [3001, 4000],
+}
+
+function isEmpty (particle: Particle) {
+    return particle.state === null
+}
+
+function isSolid (particle: Particle) {
+    return particle.state === 'solid'
+}
+
+function isLiquid (particle: Particle) {
+    return particle.state === 'liquid'
+}
+
+function isGas (particle: Particle) {
+    return particle.state === 'gas'
+}
+
+function isPlasma (particle: Particle) {
+    return particle.state === 'plasma'
 }
